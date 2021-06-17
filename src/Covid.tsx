@@ -10,13 +10,16 @@ export default function Covid(): ReactElement {
 			)
 			const data = (await res.json()) as any
 			const countries = Object.values(data)
-				.filter((d: any) => d.new_cases_smoothed_per_million <= 40)
+				.filter(
+					(d: any) =>
+						d.continent !== null && d.new_cases_smoothed_per_million <= 40
+				)
 				.map((country: any) => ({
 					location: country.location,
 					new_cases_smoothed_per_million:
 						country.new_cases_smoothed_per_million?.toLocaleString(),
 					positive_rate: (country.positive_rate ?? 0).toLocaleString(),
-					population: (country.population ?? 0).toLocaleString(),
+					population: country.population ?? 0,
 					people_fully_vaccinated_per_hundred: (
 						country.people_fully_vaccinated_per_hundred ?? 0
 					).toLocaleString(),
@@ -43,6 +46,7 @@ export default function Covid(): ReactElement {
 				{
 					label: 'Population',
 					field: 'population',
+					sort: 'desc',
 				},
 				{
 					label: 'Total Full Vaccination per 100k',
@@ -56,7 +60,15 @@ export default function Covid(): ReactElement {
 	return (
 		<>
 			<h1>Countries with less than 40 cases/million on a 7 day rolling avg</h1>
-			<MDBDataTable striped bordered small data={data} />
+			<MDBDataTable
+				striped
+				bordered
+				small
+				data={data}
+				entries={200}
+				entriesOptions={[200]}
+				order={['population', 'desc']}
+			/>
 			<h4>
 				Data gathered from{' '}
 				<a href='https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/latest/owid-covid-latest.json'>
